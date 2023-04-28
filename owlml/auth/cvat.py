@@ -11,7 +11,7 @@ def get_host() -> str:
     cvat_host = os.getenv("CVAT_HOST")
     if cvat_host is None:
         cvat_host = input("CVAT Host: ")
-    return cvat_host
+    return cvat_host.rstrip("/")
 
 
 def get_username() -> str:
@@ -38,7 +38,7 @@ def get_org() -> str:
     return org
 
 
-def get_client(
+def get_cvat_client(
     username: Optional[str] = None,
     password: Optional[str] = None,
     org: Optional[str] = None,
@@ -50,8 +50,7 @@ def get_client(
         password = get_password()
     if org is None:
         org = get_org()
-    url = get_host().rstrip("/")
-    client = Client(url=url, check_server_version=False)
+    client = Client(url=get_host(), check_server_version=False)
     credentials = (username, password)
     client.login(credentials)
     client.api_client.set_default_header("x-organization", org)
