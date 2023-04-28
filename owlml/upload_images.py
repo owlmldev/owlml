@@ -49,4 +49,4 @@ def upload_images(
     for extension in VALID_IMAGE_FORMATS:
         images.extend(image_directory.glob(f"*{extension}"))
     upload_image_list(task_id, sorted(images))
-    print(f"Uploaded {len(images)} images to task {task_id}")
+    print(f"Uploaded {len(images)} images to task {task_name}")
