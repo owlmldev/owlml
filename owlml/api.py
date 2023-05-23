@@ -10,7 +10,17 @@ def _get_required_env_var(env_var: str) -> str:
     value = os.getenv(env_var)
     if value is None:
         raise ValueError(f"Missing required environment variable: {env_var}")
-    return value    
+    return value
+
+
+def raise_for_status(response: requests.Response) -> None:
+    """Raise an error if the response status code is not 200."""
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as error:
+        raise requests.exceptions.HTTPError(
+            f"{error}\nResponse body: {response.text}"
+        ) from error
 
 
 class OwlMLAPI:
@@ -22,12 +32,12 @@ class OwlMLAPI:
     def get(cls, route: str) -> dict[str, Any]:
         """Make a GET request to the OwlML API."""
         response = requests.get(os.path.join(cls.base_url, route))
-        response.raise_for_status()
+        raise_for_status(response)
         return response.json()
 
     @classmethod
-    def post(cls, route: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def post(cls, route: str, payload: dict[str, Any] = dict()) -> dict[str, Any]:
         """Make a POST request to the OwlML API."""
         response = requests.post(os.path.join(cls.base_url, route), json=payload)
-        response.raise_for_status()
+        raise_for_status(response)
         return response.json()

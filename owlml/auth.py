@@ -5,6 +5,12 @@ from typing import Any, Optional
 from .api import OwlMLAPI
 
 
+def assign_batch(batch: str, username: str) -> dict[str, Any]:
+    """Assign a batch to a user."""
+    payload = dict(username=username)
+    return OwlMLAPI.post(f"batches/{batch}/assign", payload)
+
+
 def create_user(username: str, email: Optional[str] = None) -> dict[str, Any]:
     """Create a user with the given username and password."""
     password = getpass("Password: ")
