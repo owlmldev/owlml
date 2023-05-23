@@ -26,7 +26,7 @@ def raise_for_status(response: requests.Response) -> None:
 class OwlMLAPI:
     """API class for OwlML."""
 
-    base_url: str = _get_required_env_var("OWLML_API")
+    base_url: str = os.path.join(_get_required_env_var("OWLML_URL"), "api")
 
     @classmethod
     def get(cls, route: str) -> dict[str, Any]:
