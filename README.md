@@ -1,12 +1,6 @@
 # OwlML
 
-OwlML is a Python package that provides a single Command Line Interface (CLI) for integrating CVAT and ClearML. The goal is to streamline the process of working with these two open-source services, making it easier to manage tasks and resources through a unified interface. Eventually, the project aims to stand up the OwlML API, which will further simplify the interaction between CVAT and ClearML.
-
-## Features
-
-- Unified CLI for CVAT and ClearML
-- Streamlined task and resource management
-- Planned OwlML API for seamless integration
+OwlML is a Command Line Interface (CLI) for the OwlML API, a unified computer vision API.
 
 ## Installation
 
