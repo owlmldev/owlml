@@ -40,7 +40,7 @@ def _upload_image(presigned_post: dict[str, Any], image_path: Union[str, Path]) 
 
 def _complete_image(image_id: str) -> dict[str, Any]:
     """Complete an image."""
-    return OwlMLAPI.post(f"images/{image_id}/complete", dict())
+    return OwlMLAPI.post(f"images/{image_id}/complete")
 
 
 def upload_images(
