@@ -44,10 +44,10 @@ def _complete_image(image_id: str) -> dict[str, Any]:
 
 
 def upload_images(
-    dataset: str, image_directory: Union[str, Path], batch: Optional[str] = None
+    dataset: str, image_directory: Union[str, Path], batch_slug: Optional[str] = None
 ) -> dict[str, Any]:
     """Upload images to a dataset."""
-    batch = _create_batch(dataset)
+    batch = _create_batch(dataset, batch_slug)
     images = list(Path(image_directory).glob("*"))
     for image_path in tqdm(images):
         image_response = _create_image(dataset, batch["slug"], image_path)

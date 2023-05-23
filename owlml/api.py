@@ -33,6 +33,8 @@ class OwlMLAPI:
         """Make a GET request to the OwlML API."""
         response = requests.get(os.path.join(cls.base_url, route))
         raise_for_status(response)
+        if response.status_code == 204:
+            return {}
         return response.json()
 
     @classmethod
@@ -40,4 +42,6 @@ class OwlMLAPI:
         """Make a POST request to the OwlML API."""
         response = requests.post(os.path.join(cls.base_url, route), json=payload)
         raise_for_status(response)
+        if response.status_code == 204:
+            return {}
         return response.json()

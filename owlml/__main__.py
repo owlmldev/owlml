@@ -2,7 +2,7 @@
 import fire
 
 from .auth import assign_batch, create_org, create_user, invite_user
-from .datasets import create_dataset
+from .datasets import create_dataset, version_dataset
 from .images import upload_images
 
 
@@ -16,5 +16,6 @@ def main() -> None:
             "create-user": create_user,
             "invite-user": invite_user,
             "upload-images": upload_images,
+            "version-dataset": version_dataset,
         }
     )
