@@ -1,26 +1,17 @@
 """OwlML datasets API."""
 import json
 import time
+import warnings
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union
 
-import requests
+import datumaro as dm
+from farmhash import fingerprint64
 from tqdm import tqdm
 
-from .api import OwlMLAPI, raise_for_status
-
-
-def _complete_batch(batch: str) -> dict[str, Any]:
-    """Complete a batch."""
-    return OwlMLAPI.post(f"batches/{batch}/complete")
-
-
-def _create_batch(dataset: str, batch: Optional[str] = None) -> dict[str, Any]:
-    """Create a batch."""
-    payload = dict(dataset=dataset)
-    if batch is not None:
-        payload["slug"] = batch
-    return OwlMLAPI.post("batches", payload)
+from .annotations import read_annotations
+from .api import OwlMLAPI
+from .images import _download_image, generate_image_id, list_local_images
 
 
 def create_dataset(org: str, slug: str, labels: list[str]) -> dict[str, Any]:
@@ -31,7 +22,7 @@ def create_dataset(org: str, slug: str, labels: list[str]) -> dict[str, Any]:
 
 def download_dataset(
     dataset: str,
-    version_slug: Optional[str] = None,
+    version: Optional[str] = None,
     output_path: Union[str, Path] = "./",
 ) -> dict[str, Any]:
     """Download dataset version."""
@@ -52,10 +43,35 @@ def download_dataset(
     for image in tqdm(version["images"]):
         image_path = output_path / Path(image["image_id"] + image["extension"])
         image_path.parent.mkdir(parents=True, exist_ok=True)
-        response = requests.get(image["presigned_get"])
-        raise_for_status(response)
-        with open(image_path, "wb") as f:
-            f.write(response.content)
+        _download_image(image["presigned_get"], image_path)
+
+
+def generate_records(
+    dataset_directory: Union[str, Path],
+    version: str,
+    holdout_evaluator: Optional[Callable[[int], bool]] = None,
+) -> list[dict[str, Any]]:
+    """Generate dataset records for training or evaluation."""
+    dataset_directory = Path(dataset_directory)
+    image_map = {generate_image_id(p): p for p in list_local_images(dataset_directory)}
+    dataset = read_annotations(dataset_directory, version)
+    categories = dataset.categories().get(dm.AnnotationType.label)
+    if categories is None:
+        raise ValueError("Dataset does not contain labels.")
+    labels = [l.name for l in categories.items]
+    records = []
+    for item in dataset:
+        if holdout_evaluator and not holdout_evaluator(fingerprint64(item.id)):
+            continue
+        image_path = image_map.get(item.id)
+        if image_path is None:
+            warnings.warn(f"Image {item.id} not found.")
+            continue
+        item_labels = []
+        for annotation in item.annotations:
+            item_labels.append(labels[annotation.label])
+        records.append(dict(image_path=image_path, labels=item_labels))
+    return records
 
 
 def version_dataset(dataset: str, slug: Optional[str] = None) -> dict[str, Any]:
