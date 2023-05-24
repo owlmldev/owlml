@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional, Union
 from farmhash import fingerprint64
 from tqdm import tqdm
 
-from .annotations import extract_labels, read_annotations
+from .annotations import read_annotations
 from .api import OwlMLAPI
 from .images import _download_image, generate_image_id, list_local_images
 
