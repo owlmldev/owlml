@@ -1,8 +1,6 @@
 """OwlML datasets API."""
 import json
-import time
 import warnings
-from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
 
@@ -12,7 +10,6 @@ from tqdm import tqdm
 from .annotations import read_annotations
 from .api import OwlMLAPI
 from .images import _download_image, generate_image_id, list_local_images
-from .utils import pagination_iterator
 
 
 def create_dataset(org: str, slug: str, labels: list[str]) -> dict[str, Any]:
@@ -22,15 +19,10 @@ def create_dataset(org: str, slug: str, labels: list[str]) -> dict[str, Any]:
 
 
 def download_dataset(
-    dataset: str,
-    version: Optional[str] = None,
-    output_path: Union[str, Path] = "./",
+    version: str, output_path: Union[str, Path] = "./"
 ) -> dict[str, Any]:
     """Download dataset version."""
     output_path = Path(output_path)
-    if version is None:
-        version_response = version_dataset(dataset)
-        version = version_response["slug"]
     version_response = OwlMLAPI.get(f"dataset-versions/{version}")
     if len(version_response["images"]) == 0:
         raise ValueError(f"No images in dataset version {version}.")
@@ -70,29 +62,3 @@ def generate_records(
             label_ids.append(annotation["label_id"])
         records.append(dict(image_path=image_path, label_ids=label_ids))
     return records
-
-
-def list_versions(dataset: Optional[str] = None) -> list[dict[str, Any]]:
-    """List dataset versions."""
-
-    def _list_versions_page(page: int, dataset: Optional[str] = None) -> dict[str, Any]:
-        """Get a dataset versions page."""
-        route = f"dataset-versions?page={page}"
-        if dataset is not None:
-            route += f"&dataset={dataset}"
-        return OwlMLAPI.get(route)
-
-    _list_version_partial = partial(_list_versions_page, dataset=dataset)
-    return list(pagination_iterator(_list_version_partial))
-
-
-def version_dataset(dataset: str, slug: Optional[str] = None) -> dict[str, Any]:
-    """Version a dataset."""
-    payload = dict(dataset=dataset)
-    if slug is not None:
-        payload["slug"] = slug
-    version = OwlMLAPI.post("dataset-versions", payload)
-    while version == {}:
-        time.sleep(0.25)
-        version = OwlMLAPI.post("dataset-versions", payload)
-    return version

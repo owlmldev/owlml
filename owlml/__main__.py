@@ -2,7 +2,8 @@
 import fire
 
 from .auth import assign_batch, create_org, create_user, invite_user
-from .datasets import create_dataset, download_dataset, list_versions, version_dataset
+from .dataset_versions import list_versions, version_dataset
+from .datasets import create_dataset, download_dataset
 from .experiments import generate_mlflow_url
 from .images import upload_images
 
