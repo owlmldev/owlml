@@ -5,6 +5,7 @@ from .datasets import (
     create_dataset,
     download_dataset,
     generate_records,
+    list_versions,
     version_dataset,
 )
 from .experiments import generate_mlflow_url

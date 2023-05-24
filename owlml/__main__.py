@@ -2,7 +2,7 @@
 import fire
 
 from .auth import assign_batch, create_org, create_user, invite_user
-from .datasets import create_dataset, download_dataset, version_dataset
+from .datasets import create_dataset, download_dataset, list_versions, version_dataset
 from .experiments import generate_mlflow_url
 from .images import upload_images
 
@@ -18,6 +18,7 @@ def main() -> None:
             "download-dataset": download_dataset,
             "generate-mlflow-url": generate_mlflow_url,
             "invite-user": invite_user,
+            "list-versions": list_versions,
             "upload-images": upload_images,
             "version-dataset": version_dataset,
         }
