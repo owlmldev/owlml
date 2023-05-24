@@ -26,12 +26,13 @@ def raise_for_status(response: requests.Response) -> None:
 class OwlMLAPI:
     """API class for OwlML."""
 
-    base_url: str = os.path.join(_get_required_env_var("OWLML_URL"), "api")
+    base_url: str = _get_required_env_var("OWLML_URL")
+    api_url: str = os.path.join(base_url, "api")
 
     @classmethod
     def get(cls, route: str) -> dict[str, Any]:
         """Make a GET request to the OwlML API."""
-        response = requests.get(os.path.join(cls.base_url, route))
+        response = requests.get(os.path.join(cls.api_url, route))
         raise_for_status(response)
         if response.status_code == 204:
             return {}
@@ -40,7 +41,7 @@ class OwlMLAPI:
     @classmethod
     def post(cls, route: str, payload: dict[str, Any] = dict()) -> dict[str, Any]:
         """Make a POST request to the OwlML API."""
-        response = requests.post(os.path.join(cls.base_url, route), json=payload)
+        response = requests.post(os.path.join(cls.api_url, route), json=payload)
         raise_for_status(response)
         if response.status_code == 204:
             return {}
