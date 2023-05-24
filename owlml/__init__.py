@@ -1,4 +1,5 @@
 """OwlML is a Command Line Interface (CLI) for the OwlML API, a unified computer vision API."""
+from .annotations import extract_labels, read_annotations
 from .auth import assign_batch, create_org, create_user, invite_user
 from .datasets import (
     create_dataset,

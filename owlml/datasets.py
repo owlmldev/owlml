@@ -5,11 +5,10 @@ import warnings
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
 
-import datumaro as dm
 from farmhash import fingerprint64
 from tqdm import tqdm
 
-from .annotations import read_annotations
+from .annotations import extract_labels, read_annotations
 from .api import OwlMLAPI
 from .images import _download_image, generate_image_id, list_local_images
 
@@ -55,22 +54,19 @@ def generate_records(
     dataset_directory = Path(dataset_directory)
     image_map = {generate_image_id(p): p for p in list_local_images(dataset_directory)}
     dataset = read_annotations(dataset_directory, version)
-    categories = dataset.categories().get(dm.AnnotationType.label)
-    if categories is None:
-        raise ValueError("Dataset does not contain labels.")
-    labels = [l.name for l in categories.items]
     records = []
-    for item in dataset:
-        if holdout_evaluator and not holdout_evaluator(fingerprint64(item.id)):
+    for item in dataset["items"]:
+        item_id = item["id"]
+        if holdout_evaluator and not holdout_evaluator(fingerprint64(item_id)):
             continue
-        image_path = image_map.get(item.id)
+        image_path = image_map.get(item_id)
         if image_path is None:
-            warnings.warn(f"Image {item.id} not found.")
+            warnings.warn(f"Image {item_id} not found.")
             continue
-        item_labels = []
-        for annotation in item.annotations:
-            item_labels.append(labels[annotation.label])
-        records.append(dict(image_path=image_path, labels=item_labels))
+        label_ids = []
+        for annotation in item["annotations"]:
+            label_ids.append(annotation["label_id"])
+        records.append(dict(image_path=image_path, label_ids=label_ids))
     return records
 
 
