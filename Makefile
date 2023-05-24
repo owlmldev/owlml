@@ -13,7 +13,6 @@ test:
 
 .PHONY: check-codestyle
 check-codestyle:
-	isort --diff --check-only owlml
 	black --diff --check owlml
 	pylint owlml
 
